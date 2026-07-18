@@ -1,0 +1,29 @@
+project:
+  name: CryptoForge
+  version: 0.1.0
+  author: Tichaona Peter Chiripa
+
+paths:
+  raw: data/raw
+  archive: data/archive
+  quarantine: data/quarantine
+  bronze: data/bronze
+  silver: data/silver
+  gold: data/gold
+
+metadata:
+  directory: metadata
+
+reports:
+  directory: docs
+
+logs:
+  directory: logs
+
+spark:
+  app_name: CryptoForge
+  master: spark://spark-master:7077
+  partitions: 8
+
+discovery:
+  sample_rows: 10000
