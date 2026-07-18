@@ -1,0 +1,21 @@
+# CryptoForge Data Lake Layers
+data/raw/*
+data/bronze/*
+data/silver/*
+data/gold/*
+data/archive/*
+data/quarantine/*
+!data/**/.gitkeep
+
+# Python & Environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Containers & Logs
+docker/volumes/
+postgres_data/
+logs/*
+!logs/.gitkeep
