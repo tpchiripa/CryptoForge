@@ -25,22 +25,28 @@ class StatisticsRegistry:
     _calculators: list[Type[BaseCalculator]] = []
 
     @classmethod
-    def register(cls, calculator: Type[BaseCalculator]) -> None:
+    def register(
+        cls,
+        calculator: Type[BaseCalculator],
+    ) -> Type[BaseCalculator]:
+        """
+        Register a calculator and return it so the decorator
+        does not replace the class with None.
+        """
 
         if calculator not in cls._calculators:
             cls._calculators.append(calculator)
 
-    @classmethod
-    def calculators(cls):
+        return calculator
 
+    @classmethod
+    def calculators(cls) -> list[Type[BaseCalculator]]:
         return cls._calculators.copy()
 
     @classmethod
-    def clear(cls):
-
+    def clear(cls) -> None:
         cls._calculators.clear()
 
     @classmethod
-    def count(cls):
-
+    def count(cls) -> int:
         return len(cls._calculators)

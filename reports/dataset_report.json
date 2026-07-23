@@ -1,0 +1,129 @@
+{
+    "dataset": {
+        "zip_file": "BTCUSDT-trades-2026-06.zip",
+        "csv_file": "BTCUSDT-trades-2026-06.csv",
+        "zip_size_bytes": 914498374,
+        "csv_size_bytes": 9767151124,
+        "compression_ratio_percent": 9.36
+    },
+    "basic": {
+        "sample_rows": 10000,
+        "column_count": 7,
+        "missing_values": 0,
+        "duplicate_rows": 0,
+        "memory_bytes": 420132
+    },
+    "schema": {
+        "columns": [
+            "trade_id",
+            "price",
+            "quantity",
+            "quote_quantity",
+            "timestamp",
+            "is_buyer_maker",
+            "is_best_match"
+        ],
+        "dtypes": {
+            "trade_id": "int64",
+            "price": "float64",
+            "quantity": "float64",
+            "quote_quantity": "float64",
+            "timestamp": "datetime64[us]",
+            "is_buyer_maker": "bool",
+            "is_best_match": "bool"
+        }
+    },
+    "numeric": {
+        "summary": {
+            "trade_id": {
+                "count": 10000,
+                "minimum": 6337280002.0,
+                "maximum": 6337290001.0,
+                "mean": 6337285001.5,
+                "median": 6337285001.5,
+                "std": 2886.8956799071675,
+                "variance": 8334166.666666667,
+                "sum": 63372850015000.0,
+                "unique": 10000,
+                "q1": 6337282501.75,
+                "q2": 6337285001.5,
+                "q3": 6337287501.25,
+                "skewness": 0.0,
+                "kurtosis": -1.2000000000000002
+            },
+            "price": {
+                "count": 10000,
+                "minimum": 73654.06,
+                "maximum": 73798.02,
+                "mean": 73716.386381,
+                "median": 73704.0,
+                "std": 47.05760048142245,
+                "variance": 2214.41776306917,
+                "sum": 737163863.8100001,
+                "unique": 1122,
+                "q1": 73674.39,
+                "q2": 73704.0,
+                "q3": 73765.82,
+                "skewness": 0.439440145965938,
+                "kurtosis": -1.3290734296898734
+            },
+            "quantity": {
+                "count": 10000,
+                "minimum": 1e-05,
+                "maximum": 1.29597,
+                "mean": 0.004192253,
+                "median": 8e-05,
+                "std": 0.03216883353650084,
+                "variance": 0.001034833851099101,
+                "sum": 41.92253,
+                "unique": 788,
+                "q1": 7e-05,
+                "q2": 8e-05,
+                "q3": 0.001,
+                "skewness": 20.3976857958676,
+                "kurtosis": 597.9274597458516
+            },
+            "quote_quantity": {
+                "count": 10000,
+                "minimum": 0.7365982,
+                "maximum": 95474.1099,
+                "mean": 308.99298598529,
+                "median": 5.893888,
+                "std": 2370.440632958001,
+                "variance": 5618988.794378328,
+                "sum": 3089929.8598529,
+                "unique": 3532,
+                "q1": 5.1591169,
+                "q2": 5.893888,
+                "q3": 73.684,
+                "skewness": 20.3890511854859,
+                "kurtosis": 597.4313446799129
+            }
+        }
+    },
+    "quality": {
+        "missing_values": 0,
+        "missing_percentage": 0.0,
+        "duplicate_rows": 0,
+        "duplicate_percentage": 0.0,
+        "unique_rows": 10000,
+        "completeness_score": 100.0,
+        "quality_score": 100.0
+    },
+    "timestamp": {
+        "summary": {
+            "timestamp": {
+                "minimum": "2026-06-01 00:00:00.140314",
+                "maximum": "2026-06-01 00:03:45.157258",
+                "missing": 0,
+                "unique": 2844,
+                "timezone": "None",
+                "is_monotonic": true,
+                "duration_seconds": 225.016944
+            }
+        }
+    },
+    "metadata": null,
+    "report_path": null,
+    "metadata_path": null
+}

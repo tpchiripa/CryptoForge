@@ -10,7 +10,8 @@ Discovery Engine. They are intentionally immutable so
 that downstream components (Spark, Airflow, APIs,
 Power BI, etc.) can safely consume them.
 
-Author: Tichaona Peter Chiripa
+Author:
+    Tichaona Peter Chiripa
 =========================================================
 """
 
@@ -83,9 +84,6 @@ class SchemaInfo:
 class NumericStatistics:
     """
     Summary statistics for numeric columns.
-
-    Stored as a nested dictionary because the structure
-    depends on the dataframe implementation.
     """
 
     summary: dict[str, Any] = field(default_factory=dict)
@@ -98,16 +96,104 @@ class NumericStatistics:
 @dataclass(frozen=True)
 class QualityStatistics:
     """
-    Data quality metrics.
+    Dataset quality metrics.
     """
+
+    missing_values: int
 
     missing_percentage: float
 
+    duplicate_rows: int
+
     duplicate_percentage: float
 
-    schema_valid: bool
+    unique_rows: int
+
+    completeness_score: float
 
     quality_score: float
+
+
+# =========================================================
+# TIMESTAMP STATISTICS
+# =========================================================
+
+@dataclass(frozen=True)
+class TimestampStatistics:
+    """
+    Statistics for timestamp columns.
+    """
+
+    summary: dict[str, Any] = field(default_factory=dict)
+
+
+# =========================================================
+# COLUMN PROFILE
+# =========================================================
+
+@dataclass(frozen=True)
+class ColumnProfile:
+    """
+    Profile describing a single dataset column.
+    """
+
+    name: str
+
+    dtype: str
+
+    nullable: bool
+
+    missing_values: int
+
+    missing_percentage: float
+
+    unique_values: int
+
+    cardinality: float
+
+    memory_bytes: int
+
+    sample_values: list[Any] = field(default_factory=list)
+
+    is_numeric: bool = False
+
+    is_boolean: bool = False
+
+    is_datetime: bool = False
+
+    is_text: bool = False
+
+
+# =========================================================
+# INFERENCE RESULT
+# =========================================================
+
+@dataclass(frozen=True)
+class InferenceResult:
+    """
+    Metadata inferred from the dataset.
+
+    Each inferencer contributes to one or more of these
+    collections.
+    """
+
+    primary_keys: list[str] = field(default_factory=list)
+
+    identifiers: list[str] = field(default_factory=list)
+
+    foreign_keys: list[dict[str, Any]] = field(default_factory=list)
+
+    categorical_columns: list[str] = field(default_factory=list)
+
+    monotonic_columns: list[str] = field(default_factory=list)
+
+    constant_columns: list[str] = field(default_factory=list)
+
+    nullable_columns: list[str] = field(default_factory=list)
+
+    high_cardinality_columns: list[str] = field(default_factory=list)
+
+    duplicate_columns: list[str] = field(default_factory=list)
 
 
 # =========================================================
@@ -117,7 +203,11 @@ class QualityStatistics:
 @dataclass(frozen=True)
 class DiscoveryResult:
     """
-    Canonical output returned by the Discovery Engine.
+    Canonical output returned by the Discovery Pipeline.
+
+    This object is exchanged between every Discovery
+    component and forms the basis for reporting,
+    metadata export and downstream processing.
     """
 
     dataset: DatasetInfo
@@ -129,3 +219,15 @@ class DiscoveryResult:
     numeric: NumericStatistics
 
     quality: QualityStatistics
+
+    timestamp: TimestampStatistics
+
+    column_profiles: list[ColumnProfile] = field(default_factory=list)
+
+    inference: InferenceResult = field(default_factory=InferenceResult)
+
+    metadata: dict[str, Any] | None = None
+
+    report_path: str | None = None
+
+    metadata_path: str | None = None

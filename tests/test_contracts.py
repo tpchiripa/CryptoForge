@@ -1,32 +1,35 @@
 """
 =========================================================
-CryptoForge Contract Tests
+CryptoForge Contracts Test
 =========================================================
 
-Verifies the Discovery domain contracts.
+Verifies that all Discovery contracts can be instantiated.
 
-Author: Tichaona Peter Chiripa
+Author:
+    Tichaona Peter Chiripa
 =========================================================
 """
 
 from cryptoforge.discovery.contracts import (
-    BasicStatistics,
     DatasetInfo,
-    DiscoveryResult,
+    BasicStatistics,
+    SchemaInfo,
     NumericStatistics,
     QualityStatistics,
-    SchemaInfo,
+    TimestampStatistics,
+    ColumnProfile,
+    DiscoveryResult,
 )
 
 
 def main():
 
     dataset = DatasetInfo(
-        zip_file="BTCUSDT-trades-2026-06.zip",
-        csv_file="BTCUSDT-trades-2026-06.csv",
-        zip_size_bytes=914498374,
-        csv_size_bytes=9767151124,
-        compression_ratio_percent=9.36,
+        zip_file="btc.zip",
+        csv_file="btc.csv",
+        zip_size_bytes=100,
+        csv_size_bytes=500,
+        compression_ratio_percent=20.0,
     )
 
     basic = BasicStatistics(
@@ -34,50 +37,50 @@ def main():
         column_count=7,
         missing_values=0,
         duplicate_rows=0,
-        memory_bytes=560000,
+        memory_bytes=420132,
     )
 
     schema = SchemaInfo(
-        columns=[
-            "trade_id",
-            "price",
-            "quantity",
-            "quote_quantity",
-            "timestamp",
-            "is_buyer_maker",
-            "is_best_match",
-        ],
+        columns=["price", "quantity"],
         dtypes={
-            "trade_id": "int64",
             "price": "float64",
             "quantity": "float64",
-            "quote_quantity": "float64",
-            "timestamp": "datetime64[ns]",
-            "is_buyer_maker": "bool",
-            "is_best_match": "bool",
         },
     )
 
     numeric = NumericStatistics(
-        summary={
-            "price": {
-                "min": 72000.10,
-                "max": 74500.25,
-                "mean": 73215.44,
-            },
-            "quantity": {
-                "min": 0.00001,
-                "max": 4.25,
-                "mean": 0.0134,
-            },
-        }
+        summary={}
     )
 
     quality = QualityStatistics(
+        missing_values=0,
         missing_percentage=0.0,
+        duplicate_rows=0,
         duplicate_percentage=0.0,
-        schema_valid=True,
+        unique_rows=10000,
+        completeness_score=100.0,
         quality_score=100.0,
+    )
+
+    timestamp = TimestampStatistics(
+        summary={}
+    )
+
+    profile = ColumnProfile(
+        name="price",
+        dtype="float64",
+        nullable=False,
+        missing_values=0,
+        missing_percentage=0.0,
+        unique_values=1122,
+        cardinality=0.1122,
+        memory_bytes=80000,
+        sample_values=[
+            73674.39,
+            73680.11,
+            73710.50,
+        ],
+        is_numeric=True,
     )
 
     result = DiscoveryResult(
@@ -86,28 +89,20 @@ def main():
         schema=schema,
         numeric=numeric,
         quality=quality,
+        timestamp=timestamp,
+        column_profiles=[profile],
     )
 
-    print("\n==============================")
-    print("DiscoveryResult")
-    print("==============================\n")
+    print("\nContracts Test")
+    print("=" * 60)
 
     print(result)
 
-    print("\nDataset")
-    print(result.dataset)
+    print("\nColumn Profiles")
+    print("=" * 60)
 
-    print("\nBasic Statistics")
-    print(result.basic)
-
-    print("\nSchema")
-    print(result.schema)
-
-    print("\nQuality")
-    print(result.quality)
-
-    print("\nNumeric Summary")
-    print(result.numeric.summary)
+    for column in result.column_profiles:
+        print(column)
 
 
 if __name__ == "__main__":

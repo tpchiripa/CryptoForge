@@ -3,7 +3,8 @@
 CryptoForge Dataset Inspector
 =========================================================
 
-Responsible for discovering and validating raw datasets.
+Responsible for discovering, validating and loading
+raw Binance datasets.
 
 Author: Tichaona Peter Chiripa
 =========================================================
@@ -18,18 +19,40 @@ from pathlib import Path
 import pandas as pd
 
 from cryptoforge.core.settings import settings
-from cryptoforge.logger import logger
 from cryptoforge.discovery.contracts import DatasetInfo
+from cryptoforge.logger import logger
 
 
 class DatasetInspector:
     """
-    Inspects raw datasets before profiling.
+    Discovers and loads Binance datasets.
+
+    Responsibilities
+    ----------------
+    • Locate ZIP datasets
+    • Validate archive contents
+    • Extract dataset metadata
+    • Load sample data
+    • Apply the canonical Binance schema
     """
+
+    BINANCE_COLUMNS = [
+        "trade_id",
+        "price",
+        "quantity",
+        "quote_quantity",
+        "timestamp",
+        "is_buyer_maker",
+        "is_best_match",
+    ]
 
     def __init__(self):
 
         self.raw_directory = Path(settings.paths.raw)
+
+    # =====================================================
+    # Dataset Discovery
+    # =====================================================
 
     def locate_dataset(self) -> Path:
 
@@ -42,9 +65,13 @@ class DatasetInspector:
 
         dataset = zip_files[0]
 
-        logger.info(f"Dataset located: {dataset.name}")
+        logger.info("Dataset located: %s", dataset.name)
 
         return dataset
+
+    # =====================================================
+    # Metadata Inspection
+    # =====================================================
 
     def inspect(self) -> DatasetInfo:
 
@@ -82,6 +109,10 @@ class DatasetInspector:
             compression_ratio_percent=compression,
         )
 
+    # =====================================================
+    # Data Loading
+    # =====================================================
+
     def load_sample(self) -> pd.DataFrame:
 
         dataset = self.locate_dataset()
@@ -102,8 +133,45 @@ class DatasetInspector:
                     nrows=settings.discovery.sample_rows,
                 )
 
+        dataframe = self._standardize_schema(dataframe)
+
+        # Fixed logging statement
         logger.info(
             f"Loaded sample with {len(dataframe):,} rows."
         )
+
+        return dataframe
+
+    # =====================================================
+    # Internal Helpers
+    # =====================================================
+
+    def _standardize_schema(
+        self,
+        dataframe: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """
+        Applies the canonical Binance schema and converts
+        timestamp columns to datetime.
+        """
+
+        if dataframe.shape[1] == len(self.BINANCE_COLUMNS):
+
+            dataframe.columns = self.BINANCE_COLUMNS
+
+        else:
+
+            dataframe.columns = [
+                f"column_{i}"
+                for i in range(dataframe.shape[1])
+            ]
+
+        if "timestamp" in dataframe.columns:
+
+            dataframe["timestamp"] = pd.to_datetime(
+                dataframe["timestamp"],
+                unit="us",
+                errors="coerce",
+            )
 
         return dataframe
