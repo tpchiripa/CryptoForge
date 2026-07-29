@@ -51,11 +51,9 @@ class BasicStatistics:
     """
 
     sample_rows: int
-
     column_count: int
 
     missing_values: int
-
     duplicate_rows: int
 
     memory_bytes: int
@@ -72,7 +70,6 @@ class SchemaInfo:
     """
 
     columns: list[str]
-
     dtypes: dict[str, str]
 
 
@@ -100,17 +97,14 @@ class QualityStatistics:
     """
 
     missing_values: int
-
     missing_percentage: float
 
     duplicate_rows: int
-
     duplicate_percentage: float
 
     unique_rows: int
 
     completeness_score: float
-
     quality_score: float
 
 
@@ -138,17 +132,14 @@ class ColumnProfile:
     """
 
     name: str
-
     dtype: str
 
     nullable: bool
 
     missing_values: int
-
     missing_percentage: float
 
     unique_values: int
-
     cardinality: float
 
     memory_bytes: int
@@ -156,11 +147,8 @@ class ColumnProfile:
     sample_values: list[Any] = field(default_factory=list)
 
     is_numeric: bool = False
-
     is_boolean: bool = False
-
     is_datetime: bool = False
-
     is_text: bool = False
 
 
@@ -173,15 +161,25 @@ class InferenceResult:
     """
     Metadata inferred from the dataset.
 
-    Each inferencer contributes to one or more of these
-    collections.
+    Each inferencer contributes one or more outputs to
+    this canonical Discovery contract.
     """
+
+    # -----------------------------------------------------
+    # Keys
+    # -----------------------------------------------------
 
     primary_keys: list[str] = field(default_factory=list)
 
     identifiers: list[str] = field(default_factory=list)
 
+    business_keys: list[str] = field(default_factory=list)
+
     foreign_keys: list[dict[str, Any]] = field(default_factory=list)
+
+    # -----------------------------------------------------
+    # Structural Characteristics
+    # -----------------------------------------------------
 
     categorical_columns: list[str] = field(default_factory=list)
 
@@ -194,6 +192,56 @@ class InferenceResult:
     high_cardinality_columns: list[str] = field(default_factory=list)
 
     duplicate_columns: list[str] = field(default_factory=list)
+
+    # -----------------------------------------------------
+    # Governance
+    # -----------------------------------------------------
+
+    pii_columns: list[str] = field(default_factory=list)
+
+    # -----------------------------------------------------
+    # Contact Information
+    # -----------------------------------------------------
+
+    email_columns: list[str] = field(default_factory=list)
+
+    phone_columns: list[str] = field(default_factory=list)
+
+    address_columns: list[str] = field(default_factory=list)
+
+    country_columns: list[str] = field(default_factory=list)
+
+    # -----------------------------------------------------
+    # Entity Recognition
+    # -----------------------------------------------------
+
+    name_columns: list[str] = field(default_factory=list)
+
+    company_columns: list[str] = field(default_factory=list)
+
+    product_columns: list[str] = field(default_factory=list)
+
+    sku_columns: list[str] = field(default_factory=list)
+
+    barcode_columns: list[str] = field(default_factory=list)
+
+    # -----------------------------------------------------
+    # Business Semantics
+    # -----------------------------------------------------
+
+    semantic_types: dict[str, str] = field(default_factory=dict)
+
+    # -----------------------------------------------------
+    # Measurement Units
+    # -----------------------------------------------------
+
+    units: dict[str, str] = field(default_factory=dict)
+
+    # -----------------------------------------------------
+    # Currency
+    # -----------------------------------------------------
+
+    currency_columns: dict[str, str] = field(default_factory=dict)
 
 
 # =========================================================

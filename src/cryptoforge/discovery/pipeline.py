@@ -3,23 +3,7 @@
 CryptoForge Discovery Pipeline
 =========================================================
 
-Coordinates the entire discovery workflow.
-
-Pipeline
-
-Dataset Inspector
-        │
-        ▼
-Statistics Engine
-        │
-        ▼
-Profiling Engine
-        │
-        ▼
-Inference Engine
-        │
-        ▼
-Discovery Result
+Coordinates the complete Discovery workflow.
 
 Author:
     Tichaona Peter Chiripa
@@ -41,12 +25,13 @@ from cryptoforge.discovery.profiling.engine import ProfilingEngine
 from cryptoforge.discovery.inference.engine import InferenceEngine
 
 
-# -------------------------------------------------
+# =========================================================
 # Register Inferencers
-# -------------------------------------------------
+# =========================================================
 
 import cryptoforge.discovery.inference.primary_key
 import cryptoforge.discovery.inference.identifier
+import cryptoforge.discovery.inference.business_key
 import cryptoforge.discovery.inference.foreign_key
 import cryptoforge.discovery.inference.monotonic
 import cryptoforge.discovery.inference.constant
@@ -54,6 +39,11 @@ import cryptoforge.discovery.inference.nullable
 import cryptoforge.discovery.inference.categorical
 import cryptoforge.discovery.inference.high_cardinality
 import cryptoforge.discovery.inference.duplicate
+import cryptoforge.discovery.inference.pii
+import cryptoforge.discovery.inference.semantic_type
+import cryptoforge.discovery.inference.units
+import cryptoforge.discovery.inference.currency
+import cryptoforge.discovery.inference.email
 
 
 class DiscoveryPipeline:
@@ -61,21 +51,18 @@ class DiscoveryPipeline:
     Coordinates the complete Discovery workflow.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = get_logger(__name__)
 
     def run(self) -> DiscoveryResult:
-        """
-        Execute the complete Discovery Pipeline.
-        """
 
         self.logger.info("=" * 60)
         self.logger.info("Starting CryptoForge Discovery Pipeline")
         self.logger.info("=" * 60)
 
-        # -------------------------------------------------
+        # =====================================================
         # Dataset Inspection
-        # -------------------------------------------------
+        # =====================================================
 
         inspector = DatasetInspector()
 
@@ -83,116 +70,158 @@ class DiscoveryPipeline:
 
         df = inspector.load_sample()
 
-        # -------------------------------------------------
-        # Statistics Engine
-        # -------------------------------------------------
+        # =====================================================
+        # Statistics
+        # =====================================================
 
         statistics = StatisticsEngine(df).calculate()
 
-        # -------------------------------------------------
-        # Profiling Engine
-        # -------------------------------------------------
+        # =====================================================
+        # Profiling
+        # =====================================================
 
         profiles = ProfilingEngine(df).profile()
 
-        # -------------------------------------------------
-        # Inference Engine
-        # -------------------------------------------------
+        # =====================================================
+        # Inference
+        # =====================================================
 
         inference = InferenceEngine(df).infer()
 
         inference_result = InferenceResult(
 
+            # -------------------------------------------------
+            # Keys
+            # -------------------------------------------------
+
             primary_keys=inference.get(
-                "PrimaryKeyInferencer",
-                {},
+                "PrimaryKeyInferencer", {}
             ).get(
-                "primary_keys",
-                [],
+                "primary_keys", []
             ),
 
             identifiers=inference.get(
-                "IdentifierInferencer",
-                {},
+                "IdentifierInferencer", {}
             ).get(
-                "identifiers",
-                [],
+                "identifiers", []
+            ),
+
+            business_keys=inference.get(
+                "BusinessKeyInferencer", {}
+            ).get(
+                "business_keys", []
             ),
 
             foreign_keys=inference.get(
-                "ForeignKeyInferencer",
-                {},
+                "ForeignKeyInferencer", {}
             ).get(
-                "foreign_keys",
-                [],
+                "foreign_keys", []
             ),
 
+            # -------------------------------------------------
+            # Structural Metadata
+            # -------------------------------------------------
+
             categorical_columns=inference.get(
-                "CategoricalInferencer",
-                {},
+                "CategoricalInferencer", {}
             ).get(
-                "categorical_columns",
-                [],
+                "categorical_columns", []
             ),
 
             monotonic_columns=inference.get(
-                "MonotonicInferencer",
-                {},
+                "MonotonicInferencer", {}
             ).get(
-                "monotonic_columns",
-                [],
+                "monotonic_columns", []
             ),
 
             constant_columns=inference.get(
-                "ConstantInferencer",
-                {},
+                "ConstantInferencer", {}
             ).get(
-                "constant_columns",
-                [],
+                "constant_columns", []
             ),
 
             nullable_columns=inference.get(
-                "NullableInferencer",
-                {},
+                "NullableInferencer", {}
             ).get(
-                "nullable_columns",
-                [],
+                "nullable_columns", []
             ),
 
             high_cardinality_columns=inference.get(
-                "HighCardinalityInferencer",
-                {},
+                "HighCardinalityInferencer", {}
             ).get(
-                "high_cardinality_columns",
-                [],
+                "high_cardinality_columns", []
             ),
 
             duplicate_columns=inference.get(
-                "DuplicateInferencer",
-                {},
+                "DuplicateInferencer", {}
             ).get(
-                "duplicate_columns",
-                [],
+                "duplicate_columns", []
+            ),
+
+            # -------------------------------------------------
+            # Governance
+            # -------------------------------------------------
+
+            pii_columns=inference.get(
+                "PIIInferencer", {}
+            ).get(
+                "pii_columns", []
+            ),
+
+            # -------------------------------------------------
+            # Business Metadata
+            # -------------------------------------------------
+
+            semantic_types=inference.get(
+                "SemanticTypeInferencer", {}
+            ).get(
+                "semantic_types", {}
+            ),
+
+            units=inference.get(
+                "UnitsInferencer", {}
+            ).get(
+                "units", {}
+            ),
+
+            # -------------------------------------------------
+            # Currency Metadata
+            # -------------------------------------------------
+
+            currency_columns=inference.get(
+                "CurrencyInferencer", {}
+            ).get(
+                "currency_columns", {}
             ),
         )
 
-        # -------------------------------------------------
+        # =====================================================
         # Assemble Discovery Result
-        # -------------------------------------------------
+        # =====================================================
 
         result = DiscoveryResult(
 
             dataset=dataset,
 
-            basic=statistics["BasicStatisticsCalculator"],
+            basic=statistics[
+                "BasicStatisticsCalculator"
+            ],
 
-            schema=statistics["SchemaStatisticsCalculator"],
+            schema=statistics[
+                "SchemaStatisticsCalculator"
+            ],
 
-            numeric=statistics["NumericStatisticsCalculator"],
+            numeric=statistics[
+                "NumericStatisticsCalculator"
+            ],
 
-            quality=statistics["QualityStatisticsCalculator"],
+            quality=statistics[
+                "QualityStatisticsCalculator"
+            ],
 
-            timestamp=statistics["TimestampStatisticsCalculator"],
+            timestamp=statistics[
+                "TimestampStatisticsCalculator"
+            ],
 
             column_profiles=profiles,
 
@@ -203,4 +232,4 @@ class DiscoveryPipeline:
             "Discovery Pipeline completed successfully."
         )
 
-        return result
+        return result          
