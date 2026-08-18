@@ -19,7 +19,7 @@ from cryptoforge.discovery.inference.registry import register
 @register
 class BarcodeInferencer(BaseInferencer):
     """
-    Detect barcode-related columns.
+    Detect barcode-related columns using column names.
     """
 
     KEYWORDS = {
@@ -42,13 +42,18 @@ class BarcodeInferencer(BaseInferencer):
         "qr_code",
     }
 
-    def infer(self):
+    RESULT_KEY = "barcode_columns"
+
+    def infer(self) -> dict[str, list[str]]:
+        """
+        Infer barcode columns from column names.
+        """
 
         self.logger.info(
             "Inferring barcode columns..."
         )
 
-        barcode_columns = []
+        detected: list[str] = []
 
         for column in self.df.columns:
 
@@ -58,13 +63,13 @@ class BarcodeInferencer(BaseInferencer):
                 keyword in lower
                 for keyword in self.KEYWORDS
             ):
-                barcode_columns.append(column)
+                detected.append(column)
 
         self.logger.info(
             "Detected %d barcode columns.",
-            len(barcode_columns),
+            len(detected),
         )
 
         return {
-            "barcode_columns": barcode_columns
+            self.RESULT_KEY: detected,
         }

@@ -8,6 +8,9 @@ Supports dictionary matching from either:
 1. Python sets
 2. CSV knowledge bases
 
+Returns a DetectionResult so every detector exposes
+the same interface to inferencers.
+
 Author:
     Tichaona Peter Chiripa
 =========================================================
@@ -16,8 +19,12 @@ Author:
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Iterable
 
-from cryptoforge.discovery.detectors.knowledge_cache import KnowledgeCache
+from cryptoforge.discovery.contracts import DetectionResult
+from cryptoforge.discovery.detectors.knowledge_cache import (
+    KnowledgeCache,
+)
 
 
 class DictionaryDetector:
@@ -40,7 +47,10 @@ class DictionaryDetector:
                 for value in dictionary
             }
 
-    def matches(self, value):
+    def matches(
+        self,
+        value: object,
+    ) -> bool:
         """
         Returns True if the supplied value exists
         inside the dictionary.
@@ -53,18 +63,48 @@ class DictionaryDetector:
 
         return value in self.dictionary
 
-    def score(self, samples):
+    def detect(
+        self,
+        values: Iterable[object],
+    ) -> DetectionResult:
         """
-        Returns the fraction of sample values that
-        exist inside the dictionary.
+        Execute dictionary detection.
         """
 
-        if not samples:
-            return 0.0
+        values = [
+            value
+            for value in values
+            if value is not None
+        ]
 
-        matches = sum(
-            self.matches(value)
-            for value in samples
+        if not values:
+
+            return DetectionResult(
+                detector="DictionaryDetector",
+                matched=False,
+                confidence=0.0,
+                evidence=[],
+                matched_values=[],
+                metadata={},
+            )
+
+        matched = [
+            value
+            for value in values
+            if self.matches(value)
+        ]
+
+        confidence = len(matched) / len(values)
+
+        return DetectionResult(
+            detector="DictionaryDetector",
+            matched=confidence > 0.0,
+            confidence=confidence,
+            evidence=[str(value) for value in matched[:10]],
+            matched_values=[str(value) for value in matched],
+            metadata={
+                "dictionary_size": len(self.dictionary),
+                "tested_values": len(values),
+                "matched_values": len(matched),
+            },
         )
-
-        return matches / len(samples)

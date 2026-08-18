@@ -19,7 +19,7 @@ from cryptoforge.discovery.inference.registry import register
 @register
 class SKUInferencer(BaseInferencer):
     """
-    Detect SKU-related columns.
+    Detect SKU-related columns using column names.
     """
 
     KEYWORDS = {
@@ -38,13 +38,18 @@ class SKUInferencer(BaseInferencer):
         "material_number",
     }
 
-    def infer(self):
+    RESULT_KEY = "sku_columns"
+
+    def infer(self) -> dict[str, list[str]]:
+        """
+        Infer SKU columns from column names.
+        """
 
         self.logger.info(
             "Inferring SKU columns..."
         )
 
-        sku_columns = []
+        detected: list[str] = []
 
         for column in self.df.columns:
 
@@ -54,13 +59,13 @@ class SKUInferencer(BaseInferencer):
                 keyword in lower
                 for keyword in self.KEYWORDS
             ):
-                sku_columns.append(column)
+                detected.append(column)
 
         self.logger.info(
             "Detected %d SKU columns.",
-            len(sku_columns),
+            len(detected),
         )
 
         return {
-            "sku_columns": sku_columns
+            self.RESULT_KEY: detected,
         }

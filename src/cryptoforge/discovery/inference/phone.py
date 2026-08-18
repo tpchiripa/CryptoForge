@@ -13,11 +13,17 @@ Author:
 from __future__ import annotations
 
 from cryptoforge.discovery.inference.registry import register
-from cryptoforge.discovery.inference.semantic_base import BaseSemanticInferencer
+from cryptoforge.discovery.inference.semantic_base import (
+    BaseSemanticInferencer,
+)
 
-from cryptoforge.discovery.detectors.regex_detector import RegexDetector
+from cryptoforge.discovery.detectors.regex_detector import (
+    RegexDetector,
+)
 
-from cryptoforge.discovery.resources.regex.phone import PHONE_REGEX
+from cryptoforge.discovery.resources.regex.phone import (
+    PHONE_REGEX,
+)
 
 
 @register
@@ -49,5 +55,11 @@ class PhoneInferencer(BaseSemanticInferencer):
         column: str,
         samples: list[str],
     ) -> float:
+        """
+        Evaluate how confidently the sampled values
+        represent phone numbers.
+        """
 
-        return self.detector.score(samples)
+        result = self.detector.detect(samples)
+
+        return result.confidence

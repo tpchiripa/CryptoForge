@@ -153,6 +153,34 @@ class ColumnProfile:
 
 
 # =========================================================
+# DETECTION RESULT
+# =========================================================
+
+@dataclass(frozen=True, slots=True)
+class DetectionResult:
+    """
+    Standard result returned by every detector.
+
+    Every detector (Regex, Dictionary, Keyword, Sample,
+    AI, etc.) returns this canonical object so that
+    inferencers, confidence scoring and reporting all
+    consume a consistent interface.
+    """
+
+    detector: str
+
+    matched: bool
+
+    confidence: float
+
+    evidence: list[str] = field(default_factory=list)
+
+    matched_values: list[str] = field(default_factory=list)
+
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+# =========================================================
 # INFERENCE RESULT
 # =========================================================
 

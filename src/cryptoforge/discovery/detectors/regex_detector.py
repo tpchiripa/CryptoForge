@@ -6,6 +6,10 @@ CryptoForge Regex Detector
 Reusable detector for validating values using
 regular expressions.
 
+Returns a DetectionResult so downstream inferencers
+receive confidence scores, matched samples and
+statistics.
+
 Author:
     Tichaona Peter Chiripa
 =========================================================
@@ -16,20 +20,12 @@ from __future__ import annotations
 import re
 from typing import Iterable
 
+from cryptoforge.discovery.contracts import DetectionResult
+
 
 class RegexDetector:
     """
     Applies regex validation against sample values.
-
-    Useful for:
-
-    - Email
-    - Phone
-    - Barcode
-    - UUID
-    - VAT Number
-    - Passport
-    - Tax Number
     """
 
     def __init__(self, pattern: str):
@@ -38,7 +34,7 @@ class RegexDetector:
 
     def matches(self, value: object) -> bool:
         """
-        Validate one value.
+        Validate a single value.
         """
 
         if value is None:
@@ -48,27 +44,52 @@ class RegexDetector:
             self.pattern.fullmatch(str(value).strip())
         )
 
-    def score(
+    def detect(
         self,
         values: Iterable[object],
-    ) -> float:
+    ) -> DetectionResult:
         """
-        Percentage of values matching the regex.
+        Execute regex detection.
 
         Returns
         -------
-        float
-            Score between 0 and 1.
+        DetectionResult
         """
 
-        values = list(values)
+        values = [
+            value
+            for value in values
+            if value is not None
+        ]
 
         if not values:
-            return 0.0
 
-        matches = sum(
-            self.matches(value)
+            return DetectionResult(
+                detector="RegexDetector",
+                matched=False,
+                confidence=0.0,
+                evidence=[],
+                matched_values=[],
+                metadata={},
+            )
+
+        matched = [
+            value
             for value in values
-        )
+            if self.matches(value)
+        ]
 
-        return matches / len(values)
+        confidence = len(matched) / len(values)
+
+        return DetectionResult(
+            detector="RegexDetector",
+            matched=confidence > 0.0,
+            confidence=confidence,
+            evidence=[str(value) for value in matched[:10]],
+            matched_values=[str(value) for value in matched],
+            metadata={
+                "pattern": self.pattern.pattern,
+                "tested_values": len(values),
+                "matched_values": len(matched),
+            },
+        )
