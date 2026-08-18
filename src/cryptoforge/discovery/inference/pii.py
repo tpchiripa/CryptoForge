@@ -3,16 +3,8 @@
 CryptoForge PII Inferencer
 =========================================================
 
-Detects columns that may contain Personally
-Identifiable Information (PII).
-
-Current implementation is heuristic-based.
-
-Future versions will use:
-    • Named Entity Recognition (NER)
-    • LLM-assisted inference
-    • Metadata Catalog
-    • Domain-specific patterns
+Infers personally identifiable information (PII)
+using CryptoForge Knowledge Base.
 
 Author:
     Tichaona Peter Chiripa
@@ -21,92 +13,62 @@ Author:
 
 from __future__ import annotations
 
-import re
+from cryptoforge.discovery.inference.registry import register
+from cryptoforge.discovery.inference.semantic_base import BaseSemanticInferencer
 
-import pandas as pd
-
-from cryptoforge.discovery.inference.base import BaseInferencer
-from cryptoforge.discovery.inference.registry import InferenceRegistry
+from cryptoforge.discovery.detectors.dictionary_detector import DictionaryDetector
 
 
-@InferenceRegistry.register
-class PIIInferencer(BaseInferencer):
+@register
+class PIIInferencer(BaseSemanticInferencer):
     """
-    Detect possible PII columns.
+    Detect PII columns while excluding business identifiers.
     """
 
-    EMAIL_PATTERN = re.compile(
-        r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
-    )
+    KEYWORDS = {
+        "passport",
+        "passport_number",
+        "identity",
+        "identity_number",
+        "national_id",
+        "driver_license",
+        "drivers_license",
+        "tax_number",
+        "tin",
+        "ssn",
+        "credit_card",
+        "bank_account",
+        "customer_id",
+        "employee_id",
+        "user_id",
+    }
 
-    PHONE_PATTERN = re.compile(
-        r"^\+?\d[\d\s\-\(\)]{6,}$"
-    )
+    RESULT_KEY = "pii_columns"
 
-    def infer(self):
+    def __init__(self, df):
 
-        self.logger.info("Inferring PII columns...")
+        super().__init__(df)
 
-        pii_columns = []
-
-        for column in self.df.columns:
-
-            series = self.df[column].dropna()
-
-            if series.empty:
-                continue
-
-            column_name = column.lower()
-
-            if any(
-                keyword in column_name
-                for keyword in (
-                    "email",
-                    "phone",
-                    "mobile",
-                    "cell",
-                    "name",
-                    "surname",
-                    "address",
-                    "passport",
-                    "ssn",
-                    "national",
-                    "id",
-                    "identity",
-                )
-            ):
-                pii_columns.append(column)
-                continue
-
-            if pd.api.types.is_object_dtype(series):
-
-                sample = (
-                    series.astype(str)
-                    .head(100)
-                    .tolist()
-                )
-
-                email_matches = sum(
-                    bool(self.EMAIL_PATTERN.match(v))
-                    for v in sample
-                )
-
-                phone_matches = sum(
-                    bool(self.PHONE_PATTERN.match(v))
-                    for v in sample
-                )
-
-                if (
-                    email_matches >= 5
-                    or phone_matches >= 5
-                ):
-                    pii_columns.append(column)
-
-        self.logger.info(
-            "Detected %d PII columns.",
-            len(pii_columns),
+        self.pii_dictionary = DictionaryDetector(
+            "src/cryptoforge/discovery/resources/datasets/pii/pii_identifiers.csv"
         )
 
-        return {
-            "pii_columns": pii_columns
-        }
+        self.non_pii_dictionary = DictionaryDetector(
+            "src/cryptoforge/discovery/resources/datasets/pii/non_pii_identifiers.csv"
+        )
+
+    def evaluate(
+        self,
+        column,
+        samples,
+    ):
+
+        # Business identifiers should NEVER be classified as PII
+        if self.non_pii_dictionary.matches(column):
+            return 0.0
+
+        # Genuine PII identifier names receive high confidence
+        if self.pii_dictionary.matches(column):
+            return 1.0
+
+        return 0.0

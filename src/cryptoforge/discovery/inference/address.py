@@ -1,9 +1,9 @@
 """
 =========================================================
-CryptoForge Email Inferencer
+CryptoForge Address Inferencer
 =========================================================
 
-Infers email columns.
+Infers address columns.
 
 Author:
     Tichaona Peter Chiripa
@@ -17,26 +17,36 @@ from cryptoforge.discovery.inference.semantic_base import BaseSemanticInferencer
 
 from cryptoforge.discovery.detectors.regex_detector import RegexDetector
 
-from cryptoforge.discovery.resources.regex.email import EMAIL_REGEX
+from cryptoforge.discovery.resources.regex.address import ADDRESS_REGEX
 
 
 @register
-class EmailInferencer(BaseSemanticInferencer):
+class AddressInferencer(BaseSemanticInferencer):
     """
-    Detect email columns.
+    Detect address columns.
     """
 
     KEYWORDS = {
-        "email",
-        "mail",
-        "email_address",
+        "address",
+        "street",
+        "location",
+        "postal",
+        "postcode",
+        "zip",
+        "zipcode",
+        "city",
+        "province",
+        "state",
+        "physical_address",
+        "billing_address",
+        "shipping_address",
     }
 
-    RESULT_KEY = "email_columns"
+    RESULT_KEY = "address_columns"
 
     def __init__(self, df):
         super().__init__(df)
-        self.detector = RegexDetector(EMAIL_REGEX)
+        self.detector = RegexDetector(ADDRESS_REGEX)
 
     def evaluate(
         self,

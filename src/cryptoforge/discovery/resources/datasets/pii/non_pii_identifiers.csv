@@ -1,0 +1,14 @@
+identifier
+trade_id
+order_id
+invoice_id
+transaction_id
+product_id
+asset_id
+batch_id
+machine_id
+device_id
+equipment_id
+sku
+barcode
+serial_number

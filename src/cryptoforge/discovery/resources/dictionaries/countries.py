@@ -1,0 +1,71 @@
+"""
+=========================================================
+CryptoForge Country Dictionary
+=========================================================
+
+ISO-recognized country names used by the CountryInferencer.
+
+Author:
+    Tichaona Peter Chiripa
+=========================================================
+"""
+
+COUNTRIES = {
+
+    # Africa
+    "algeria","angola","benin","botswana","burkina faso","burundi",
+    "cabo verde","cameroon","central african republic","chad","comoros",
+    "democratic republic of the congo","republic of the congo",
+    "ivory coast","cote d'ivoire","djibouti","egypt",
+    "equatorial guinea","eritrea","eswatini","ethiopia","gabon",
+    "gambia","ghana","guinea","guinea-bissau","kenya","lesotho",
+    "liberia","libya","madagascar","malawi","mali","mauritania",
+    "mauritius","morocco","mozambique","namibia","niger","nigeria",
+    "rwanda","sao tome and principe","senegal","seychelles",
+    "sierra leone","somalia","south africa","south sudan","sudan",
+    "tanzania","togo","tunisia","uganda","zambia","zimbabwe",
+
+    # Europe
+    "albania","andorra","austria","belarus","belgium",
+    "bosnia and herzegovina","bulgaria","croatia","cyprus",
+    "czech republic","czechia","denmark","estonia","finland",
+    "france","germany","greece","hungary","iceland","ireland",
+    "italy","kosovo","latvia","liechtenstein","lithuania",
+    "luxembourg","malta","moldova","monaco","montenegro",
+    "netherlands","north macedonia","norway","poland",
+    "portugal","romania","russia","san marino","serbia",
+    "slovakia","slovenia","spain","sweden","switzerland",
+    "ukraine","united kingdom","vatican city",
+
+    # Asia
+    "afghanistan","armenia","azerbaijan","bahrain","bangladesh",
+    "bhutan","brunei","cambodia","china","georgia","india",
+    "indonesia","iran","iraq","israel","japan","jordan",
+    "kazakhstan","kuwait","kyrgyzstan","laos","lebanon",
+    "malaysia","maldives","mongolia","myanmar","nepal",
+    "north korea","oman","pakistan","palestine","philippines",
+    "qatar","saudi arabia","singapore","south korea","sri lanka",
+    "syria","taiwan","tajikistan","thailand","timor-leste",
+    "turkey","turkmenistan","united arab emirates","uzbekistan",
+    "vietnam","yemen",
+
+    # North America
+    "antigua and barbuda","bahamas","barbados","belize",
+    "canada","costa rica","cuba","dominica",
+    "dominican republic","el salvador","grenada",
+    "guatemala","haiti","honduras","jamaica","mexico",
+    "nicaragua","panama","saint kitts and nevis",
+    "saint lucia","saint vincent and the grenadines",
+    "trinidad and tobago","united states","usa",
+
+    # South America
+    "argentina","bolivia","brazil","chile","colombia",
+    "ecuador","guyana","paraguay","peru","suriname",
+    "uruguay","venezuela",
+
+    # Oceania
+    "australia","fiji","kiribati","marshall islands",
+    "micronesia","nauru","new zealand","palau",
+    "papua new guinea","samoa","solomon islands",
+    "tonga","tuvalu","vanuatu",
+}

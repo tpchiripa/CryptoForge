@@ -1,9 +1,9 @@
 """
 =========================================================
-CryptoForge Email Inferencer
+CryptoForge Phone Inferencer
 =========================================================
 
-Infers email columns.
+Infers phone number columns.
 
 Author:
     Tichaona Peter Chiripa
@@ -17,26 +17,32 @@ from cryptoforge.discovery.inference.semantic_base import BaseSemanticInferencer
 
 from cryptoforge.discovery.detectors.regex_detector import RegexDetector
 
-from cryptoforge.discovery.resources.regex.email import EMAIL_REGEX
+from cryptoforge.discovery.resources.regex.phone import PHONE_REGEX
 
 
 @register
-class EmailInferencer(BaseSemanticInferencer):
+class PhoneInferencer(BaseSemanticInferencer):
     """
-    Detect email columns.
+    Detect phone number columns.
     """
 
     KEYWORDS = {
-        "email",
-        "mail",
-        "email_address",
+        "phone",
+        "telephone",
+        "mobile",
+        "cell",
+        "cellphone",
+        "contact",
+        "contact_number",
+        "contact_no",
+        "tel",
     }
 
-    RESULT_KEY = "email_columns"
+    RESULT_KEY = "phone_columns"
 
     def __init__(self, df):
         super().__init__(df)
-        self.detector = RegexDetector(EMAIL_REGEX)
+        self.detector = RegexDetector(PHONE_REGEX)
 
     def evaluate(
         self,

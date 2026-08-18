@@ -13,6 +13,7 @@ Author:
 from __future__ import annotations
 
 import pandas as pd
+import cryptoforge.discovery.inference.autoload
 
 from cryptoforge.logger import get_logger
 from cryptoforge.discovery.inference.registry import (
