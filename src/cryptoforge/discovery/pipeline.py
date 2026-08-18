@@ -45,6 +45,20 @@ import cryptoforge.discovery.inference.units
 import cryptoforge.discovery.inference.currency
 import cryptoforge.discovery.inference.email
 
+# These 8 were previously never imported, so their @register
+# decorators never ran -- they existed, were tested standalone all
+# through the last session, but the pipeline itself never actually
+# invoked them. Adding them here is what actually wires the real
+# SEC/Census/Google-taxonomy knowledge bases into a real pipeline run.
+import cryptoforge.discovery.inference.address
+import cryptoforge.discovery.inference.phone
+import cryptoforge.discovery.inference.country
+import cryptoforge.discovery.inference.name
+import cryptoforge.discovery.inference.company
+import cryptoforge.discovery.inference.product
+import cryptoforge.discovery.inference.sku
+import cryptoforge.discovery.inference.barcode
+
 
 class DiscoveryPipeline:
     """
@@ -169,6 +183,68 @@ class DiscoveryPipeline:
             ),
 
             # -------------------------------------------------
+            # Contact Information
+            # -------------------------------------------------
+
+            email_columns=inference.get(
+                "EmailInferencer", {}
+            ).get(
+                "email_columns", []
+            ),
+
+            phone_columns=inference.get(
+                "PhoneInferencer", {}
+            ).get(
+                "phone_columns", []
+            ),
+
+            address_columns=inference.get(
+                "AddressInferencer", {}
+            ).get(
+                "address_columns", []
+            ),
+
+            country_columns=inference.get(
+                "CountryInferencer", {}
+            ).get(
+                "country_columns", []
+            ),
+
+            # -------------------------------------------------
+            # Entity Recognition
+            # -------------------------------------------------
+
+            name_columns=inference.get(
+                "NameInferencer", {}
+            ).get(
+                "name_columns", []
+            ),
+
+            company_columns=inference.get(
+                "CompanyInferencer", {}
+            ).get(
+                "company_columns", []
+            ),
+
+            product_columns=inference.get(
+                "ProductInferencer", {}
+            ).get(
+                "product_columns", []
+            ),
+
+            sku_columns=inference.get(
+                "SKUInferencer", {}
+            ).get(
+                "sku_columns", []
+            ),
+
+            barcode_columns=inference.get(
+                "BarcodeInferencer", {}
+            ).get(
+                "barcode_columns", []
+            ),
+
+            # -------------------------------------------------
             # Business Metadata
             # -------------------------------------------------
 
@@ -232,4 +308,4 @@ class DiscoveryPipeline:
             "Discovery Pipeline completed successfully."
         )
 
-        return result          
+        return result

@@ -3,7 +3,18 @@
 Duplicate Inferencer
 =========================================================
 
-Detects columns that contain duplicate values.
+Detects columns that are exact duplicates of another column in the
+same dataset (i.e. redundant, could be dropped without losing
+information).
+
+Previous behavior (bug): used `series.duplicated().sum() > 0`, which
+counts internally-repeated VALUES within a single column -- that's a
+low-cardinality signal (almost any column except a fully-unique one
+like an ID will trigger it), not "this column duplicates another
+column." On a real dataset this flagged nearly every column. Fixed
+here to compare whole columns against each other and only flag a
+column when it is genuinely identical, value-for-value, to an earlier
+one.
 
 Author:
     Tichaona Peter Chiripa
@@ -19,7 +30,7 @@ from cryptoforge.discovery.inference.registry import register
 @register
 class DuplicateInferencer(BaseInferencer):
     """
-    Detect duplicate columns.
+    Detect duplicate columns (columns identical to another column).
     """
 
     name = "DuplicateInferencer"
@@ -29,14 +40,27 @@ class DuplicateInferencer(BaseInferencer):
         self.logger.info("Inferring duplicate columns...")
 
         duplicate_columns = []
+        duplicate_of = {}
+
+        seen: dict[tuple, str] = {}
 
         for column in self.df.columns:
 
-            duplicate_count = self.df[column].duplicated().sum()
+            # Tuple of the column's values is a simple, exact,
+            # order-sensitive fingerprint -- two columns only produce
+            # the same key if every value matches in every row.
+            key = tuple(self.df[column].tolist())
 
-            if duplicate_count > 0:
-
+            if key in seen:
                 duplicate_columns.append(column)
+                duplicate_of[column] = seen[key]
+                self.logger.debug(
+                    "'%s' is an exact duplicate of '%s'",
+                    column,
+                    seen[key],
+                )
+            else:
+                seen[key] = column
 
         self.logger.info(
             "Detected %d duplicate columns.",
@@ -45,4 +69,5 @@ class DuplicateInferencer(BaseInferencer):
 
         return {
             "duplicate_columns": duplicate_columns,
+            "duplicate_of": duplicate_of,
         }
