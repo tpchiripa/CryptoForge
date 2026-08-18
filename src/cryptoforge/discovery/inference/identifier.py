@@ -19,6 +19,25 @@ from cryptoforge.logger import get_logger
 from cryptoforge.discovery.inference.base import BaseInferencer
 from cryptoforge.discovery.inference.registry import register
 
+# Same measure-name fallback used in primary_key.py. Kept in sync
+# deliberately -- if you add a hint to one, add it to the other, or move
+# both to a shared module (see note at bottom of file).
+_MEASURE_NAME_HINTS = (
+    "price", "cost", "amount", "quantity", "qty", "quote_quantity",
+    "fee", "total", "revenue", "balance", "weight", "volume",
+)
+
+
+def _is_continuous_measure(series: pd.Series, column_name: str) -> bool:
+    name_hit = any(hint in column_name.lower() for hint in _MEASURE_NAME_HINTS)
+
+    if series.dtype.kind == "f":
+        non_null = series.dropna()
+        has_fraction = (not non_null.empty) and (non_null % 1 != 0).any()
+        return bool(has_fraction or name_hit)
+
+    return name_hit
+
 
 @register
 class IdentifierInferencer(BaseInferencer):
@@ -89,6 +108,13 @@ class IdentifierInferencer(BaseInferencer):
             ):
                 continue
 
+            if _is_continuous_measure(series, column):
+                self.logger.debug(
+                    "Skipping '%s' as identifier candidate: continuous measure.",
+                    column,
+                )
+                continue
+
             uniqueness = series.nunique(dropna=True) / total_rows
 
             has_identifier_name = any(
@@ -107,3 +133,8 @@ class IdentifierInferencer(BaseInferencer):
         return {
             "identifiers": identifiers
         }
+
+# NOTE: _MEASURE_NAME_HINTS and _is_continuous_measure are now duplicated
+# in both primary_key.py and identifier.py. Worth moving to a shared
+# module (e.g. inference/_measures.py) once we're past the immediate fix
+# so the two lists can't quietly drift apart.
