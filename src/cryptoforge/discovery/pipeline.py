@@ -26,6 +26,20 @@ from cryptoforge.discovery.inference.engine import InferenceEngine
 
 
 # =========================================================
+# Register Profilers
+# =========================================================
+# ColumnProfiler's @ProfilingRegistry.register decorator only runs if
+# this module is actually imported somewhere. Nothing else imported
+# it, so ProfilingEngine.profile() was silently returning an empty
+# list -- confirmed via Postgres round-trip testing, which caught
+# 0 rows landing in column_profiles even though the pipeline reported
+# success. Same root cause as the inferencer imports below, one layer
+# over.
+
+import cryptoforge.discovery.profiling.column
+
+
+# =========================================================
 # Register Inferencers
 # =========================================================
 
