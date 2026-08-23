@@ -22,6 +22,31 @@ services:
     networks:
       - forge-network
   # ==========================================
+  # ORCHESTRATION LAYER
+  # ==========================================
+  airflow:
+    build:
+      context: .
+      dockerfile: docker/airflow.Dockerfile
+    container_name: cryptoforge-airflow
+    command: standalone
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://forge_admin:forge_secure_password@postgres:5432/airflow_db
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    ports:
+      - "8090:8080"   # Airflow Web UI (8080 already used by redpanda-console on this host)
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./data:/opt/cryptoforge/data
+      - ./configs:/opt/cryptoforge/configs
+      - ./reports:/opt/cryptoforge/reports
+    networks:
+      - forge-network
+  # ==========================================
   # OFFICIAL APACHE SPARK 4.0 CLUSTER
   # ==========================================
   spark-master:
@@ -29,7 +54,7 @@ services:
     container_name: cryptoforge-spark-master
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
     ports:
-      - "8080:8080"   # Master Web UI
+      - "8091:8080"   # Master Web UI (8080 taken by redpanda-console, 8090 taken by Airflow)
       - "7077:7077"   # Cluster Communication
     volumes:
       - ./data:/opt/spark/data

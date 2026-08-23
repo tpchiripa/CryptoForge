@@ -1,0 +1,16 @@
+# Local build artifacts -- never belong in the image
+**/__pycache__/
+**/*.pyc
+**/*.egg-info/
+
+# Large data files -- mounted as volumes at runtime, not baked into the image
+data/
+datasets/
+reports/
+logs/
+
+# Version control and local env
+.git/
+.pytest_cache/
+.venv/
+venv/
