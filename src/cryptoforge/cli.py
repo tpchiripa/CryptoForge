@@ -9,6 +9,7 @@ Usage
 -----
     python -m cryptoforge discover
     python -m cryptoforge discover --output-dir reports
+    python -m cryptoforge discover --to-postgres
     python -m cryptoforge --help
 
 Author:
@@ -44,6 +45,18 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Suppress the summary printed to stdout (reports are still written).",
     )
+    discover_parser.add_argument(
+        "--to-postgres",
+        action="store_true",
+        help=(
+            "Also write the discovery result into the Postgres metadata "
+            "warehouse (see postgres/init.sql). Requires Postgres to be "
+            "running (docker compose up -d postgres) and psycopg2-binary "
+            "installed. Connection defaults to the docker-compose "
+            "credentials on localhost:5435; override with the "
+            "CRYPTOFORGE_DATABASE_URL environment variable."
+        ),
+    )
 
     return parser
 
@@ -70,12 +83,32 @@ def _run_discover(args: argparse.Namespace) -> int:
     json_path = writer.write_json()
     md_path = writer.write_markdown()
 
+    postgres_run_id = None
+    postgres_error = None
+    if args.to_postgres:
+        # A Postgres failure should never take down a discovery run that
+        # otherwise succeeded and already has JSON/Markdown reports
+        # written -- report it clearly, but exit 0, not crash.
+        from cryptoforge.discovery.postgres_writer import PostgresWriter
+
+        try:
+            postgres_run_id = PostgresWriter().write(result)
+        except Exception as exc:  # noqa: BLE001
+            postgres_error = str(exc)
+
     if not args.quiet:
         inf = result.inference
         print()
         print("Discovery complete.")
         print(f"  JSON report:     {json_path}")
         print(f"  Markdown report: {md_path}")
+
+        if args.to_postgres:
+            if postgres_run_id is not None:
+                print(f"  Postgres:        written (discovery_runs.id = {postgres_run_id})")
+            else:
+                print(f"  Postgres:        FAILED -- {postgres_error}", file=sys.stderr)
+
         print()
         print(f"  Primary keys:     {inf.primary_keys}")
         print(f"  Identifiers:      {inf.identifiers}")
