@@ -50,7 +50,9 @@ services:
   # OFFICIAL APACHE SPARK 4.0 CLUSTER
   # ==========================================
   spark-master:
-    image: apache/spark:4.0.3
+    build:
+      context: .
+      dockerfile: docker/spark.Dockerfile
     container_name: cryptoforge-spark-master
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
     ports:
